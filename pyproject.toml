@@ -59,14 +59,14 @@ Issues = "https://github.com/kiy-00/ScopeSentinel/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["scopesentinel*"]
+include = ["ScopeSentinel*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
-source = ["scopesentinel"]
+source = ["ScopeSentinel"]
 omit = ["tests/*", "examples/*"]
 
 [tool.coverage.report]
