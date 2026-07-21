@@ -21,3 +21,5 @@ scope_sentinel_logs/
 
 # Env files
 .env
+
+.vscode
