@@ -494,7 +494,10 @@ Important:
 
 Input:
 \"\"\"{text}\"\"\"
+
+{extra_prompt_rules}
 """
+        
         try:
             resp = self.client.chat.completions.create(
                 model=self.model,
@@ -595,6 +598,8 @@ Protected-match flag:
 Relevant page/context:
 \"\"\"{context_text}\"\"\"
 
+{extra_prompt_rules}
+
 Return STRICT JSON only:
 {{
   "allowed": true or false,
@@ -639,7 +644,7 @@ Return STRICT JSON only:
         if not self.task_context.background and not self.task_context.task_constraints and not self.task_context.policy_instructions:
             return True, "No extra constraints"
 
-        extra_prompt_rules = self._format_prompt_override(PromptBlock.ACTION_EXTRA_CONTEXT)
+        extra_prompt_rules = self._get_runtime_prompt_extension()
 
         prompt = f"""
 You are a security consistency checker.
@@ -693,6 +698,8 @@ Target element:
 Action:
 \"\"\"{action}\"\"\"
 
+{extra_prompt_rules}
+
 Return STRICT JSON only:
 {{
   "allowed": true or false,
@@ -729,7 +736,7 @@ Return STRICT JSON only:
         recent_type_value: str = "",
         recent_type_sensitivity: str = "S0",
     ) -> Tuple[bool, str, str]:
-        extra_prompt_rules = self._format_prompt_override(PromptBlock.ACTION_EXTRA_CONTEXT)
+        extra_prompt_rules = self._get_runtime_prompt_extension()
 
         prompt = f"""
 You are a runtime click-safety judge for a browser agent.
@@ -778,6 +785,8 @@ Pruned page HTML:
 Target element:
 \"\"\"{element_text}\"\"\"
 
+{extra_prompt_rules}
+
 Return STRICT JSON only:
 {{
   "allowed": true or false,
@@ -824,7 +833,7 @@ Return STRICT JSON only:
         recent_type_value: str = "",
         recent_type_sensitivity: str = "S0",
     ) -> Tuple[bool, str, str]:
-        extra_prompt_rules = self._format_prompt_override(PromptBlock.ACTION_EXTRA_CONTEXT)
+        extra_prompt_rules = self._get_runtime_prompt_extension()
 
         prompt = f"""
 You are a runtime security judge for an autonomous browser/computer-use agent.
@@ -899,6 +908,8 @@ Candidate value:
 
 Relevant page/context text:
 \"\"\"{context_text}\"\"\"
+
+{extra_prompt_rules}
 
 Return STRICT JSON only:
 {{
@@ -1003,6 +1014,8 @@ Candidate value sensitivity:
 
 Relevant page/context:
 \"\"\"{context_text}\"\"\"
+
+{extra_prompt_rules}
 
 Return STRICT JSON only:
 {{
@@ -2512,3 +2525,12 @@ Analyze the following URL and return SAFE or UNSAFE only:
 
     def should_terminate_task(self) -> bool:
         return self.last_decision is not None and self.last_decision.recommended_response == "TERMINATE"
+
+    def _get_runtime_prompt_extension(self) -> str:
+        """
+        Return general action-related prompt extensions.
+        """
+        return self._format_prompt_override(
+            PromptBlock.ACTION_EXTRA_CONTEXT,
+            title="Additional user-defined action rules",
+        )
